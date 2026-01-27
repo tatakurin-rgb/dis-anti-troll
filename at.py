@@ -6,7 +6,6 @@ import json
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
-
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -14,10 +13,12 @@ class HealthHandler(BaseHTTPRequestHandler):
         self.wfile.write(b"OK")
 
 def run_health_server():
-    server = HTTPServer(("0.0.0.0", 8000), HealthHandler)
+    port = int(os.environ.get("PORT", 8000))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
     server.serve_forever()
 
 threading.Thread(target=run_health_server, daemon=True).start()
+
 
 
 TIMEOUT_MINUTES = 10
@@ -191,5 +192,6 @@ async def on_message(message: discord.Message):
 
     await bot.process_commands(message)
 
-bot.run(DIS_TOKEN)
+bot.run(os.environ["DISCORD_TOKEN"])
+
 
