@@ -25,8 +25,8 @@ threading.Thread(target=run_health_server, daemon=True).start()
 # =====================
 # 設定
 # =====================
-LOG_CHANNEL_ID = 123456789012345678  # ← ログチャンネルID
-TIMEOUT_MINUTES = 60
+LOG_CHANNEL_ID = 1381633140623151300
+TIMEOUT_MINUTES = 1
 
 NG_FILE = "ng_words.json"
 ALLOW_FILE = "allowed_users.json"
@@ -128,7 +128,7 @@ async def add_ng(interaction: discord.Interaction, word: str):
         ng.append(word)
         save_json(NG_FILE, ng)
 
-    await interaction.response.send_message(f"追加しました: `{word}`", ephemeral=True)
+    await interaction.response.send_message(f"禁止ワードを追加しました: `{word}`", ephemeral=True)
 
 @bot.tree.command(name="remove_ng")
 async def remove_ng(interaction: discord.Interaction, word: str):
@@ -140,7 +140,7 @@ async def remove_ng(interaction: discord.Interaction, word: str):
         ng.remove(word)
         save_json(NG_FILE, ng)
 
-    await interaction.response.send_message(f"削除しました: `{word}`", ephemeral=True)
+    await interaction.response.send_message(f"禁止ワードを削除しました: `{word}`", ephemeral=True)
 
 @bot.tree.command(name="list_ng")
 async def list_ng(interaction: discord.Interaction):
@@ -150,14 +150,14 @@ async def list_ng(interaction: discord.Interaction):
 @bot.tree.command(name="allow_mod")
 async def allow_mod(interaction: discord.Interaction, user: discord.Member):
     if not interaction.user.guild_permissions.administrator:
-        return await interaction.response.send_message("管理者専用です", ephemeral=True)
+        return await interaction.response.send_message("これは管理者専用です", ephemeral=True)
 
     allowed = load_json(ALLOW_FILE, [])
     if user.id not in allowed:
         allowed.append(user.id)
         save_json(ALLOW_FILE, allowed)
 
-    await interaction.response.send_message(f"{user.mention} を許可しました", ephemeral=True)
+    await interaction.response.send_message(f"{user.mention} のBOT操作を許可しました", ephemeral=True)
 
 # =====================
 # Bot Standby!
