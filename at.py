@@ -192,9 +192,9 @@ async def on_message(message: discord.Message):
 
     await bot.process_commands(message)
     
-token = os.getenv("DISCORD_TOKEN")
+token = os.getenv("DIS_TOKEN")
 if not token:
-    raise RuntimeError("DISCORD_TOKEN is not set")
+    raise RuntimeError("DIS_TOKEN is not set")
 
 bot.run(token)
 
