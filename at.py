@@ -96,9 +96,9 @@ async def on_message(message: discord.Message):
         return
 
     ng_words = load_json(NG_FILE, [])
-    if any(word in message.content for word in ng_words):
+    if any(word.lower() in message.content.lower() for word in ng_words):
         member = message.author
-        until = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIMEOUT_MINUTES)
+        until = discord.utils.utcnow() + datetime.timedelta(minutes=TIMEOUT_MINUTES)
         await member.timeout(until)
 
         log_channel = bot.get_channel(LOG_CHANNEL_ID)
@@ -167,6 +167,10 @@ async def on_ready():
     await bot.tree.sync()
     print(f"Logged in as {bot.user}")
 
+# =====================
+# Json確認用
+# =====================
+print("NG_WORDS:", ng_words)
 # =====================
 # 起動
 # =====================
