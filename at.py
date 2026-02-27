@@ -142,7 +142,7 @@ async def on_message(message: discord.Message):
 # =====================
 # コマンド
 # =====================
-@bot.tree.command(name="add_ng, description="禁止ワードを追加します")
+@bot.tree.command(name="add_ng", description="禁止ワードを追加します")
 async def add_ng(interaction: discord.Interaction, word: str):
     if not is_allowed(interaction.user):
         return await interaction.response.send_message("権限がありません", ephemeral=True)
@@ -154,7 +154,7 @@ async def add_ng(interaction: discord.Interaction, word: str):
 
     await interaction.response.send_message(f"禁止ワードを追加しました: `{word}`", ephemeral=True)
 
-@bot.tree.command(name="remove_ng")
+@bot.tree.command(name="remove_ng", description="禁止ワードを削除します")
 async def remove_ng(interaction: discord.Interaction, word: str):
     if not is_allowed(interaction.user):
         return await interaction.response.send_message("権限がありません", ephemeral=True)
@@ -166,12 +166,12 @@ async def remove_ng(interaction: discord.Interaction, word: str):
 
     await interaction.response.send_message(f"禁止ワードを削除しました: `{word}`", ephemeral=True)
 
-@bot.tree.command(name="list_ng")
+@bot.tree.command(name="list_ng", description="禁止ワードを確認します")
 async def list_ng(interaction: discord.Interaction):
     ng = load_json(NG_FILE, [])
     await interaction.response.send_message(", ".join(ng) or "なし", ephemeral=True)
 
-@bot.tree.command(name="allow_mod")
+@bot.tree.command(name="allow_mod", description="指定ユーザーにBot操作を許可します")
 async def allow_mod(interaction: discord.Interaction, user: discord.Member):
     if not interaction.user.guild_permissions.administrator:
         return await interaction.response.send_message("これは管理者専用です", ephemeral=True)
