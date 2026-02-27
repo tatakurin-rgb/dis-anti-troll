@@ -187,9 +187,12 @@ async def allow_mod(interaction: discord.Interaction, user: discord.Member):
 # =====================
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
-    bot.add_view(PunishView())
-    print(f"Logged in as {bot.user}")
+    try:
+        await bot.tree.sync()
+        bot.add_view(PunishView())
+        print(f"Logged in as {bot.user}")
+    except Exception as e:
+        print("on_ready ERROR:", e)
 # =====================
 # intents確認用
 # =====================
