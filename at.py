@@ -4,23 +4,7 @@ from discord import app_commands
 import json
 import os
 import datetime
-from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
-
-# =====================
-# Health check (Koyeb)
-# =====================
-class HealthHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"OK")
-
-def run_health_server():
-    server = HTTPServer(("0.0.0.0", 8000), HealthHandler)
-    server.serve_forever()
-
-threading.Thread(target=run_health_server, daemon=True).start()
 
 # =====================
 # 設定
@@ -70,14 +54,14 @@ class PunishView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    async def get_target(self, interaction: discord.Interaction):
-        user_id = int(interaction.message.embeds[0].footer.text)
+async def get_target(self, interaction):
+    user_id = int(interaction.message.embeds[0].footer.text)
 
-        member = interaction.guild.get_member(user_id)
-        if member is None:
-            member = await interaction.guild.fetch_member(user_id)
+    member = interaction.guild.get_member(user_id)
+    if member is None:
+        member = await interaction.guild.fetch_member(user_id)
 
-        return member
+    return member
 
     @discord.ui.button(
         label="🔨 BAN",
@@ -88,6 +72,9 @@ class PunishView(discord.ui.View):
         member = await self.get_target(interaction)
         await member.ban(reason="Botによるオートモデレーション")
         await interaction.response.send_message("対象をBANしました", ephemeral=True)
+        member = await self.get_target(interaction)
+if member is None:
+    return await interaction.response.send_message("ユーザーが見つかりません", ephemeral=True)
 
     @discord.ui.button(
         label="⏳ TO",
@@ -99,6 +86,9 @@ class PunishView(discord.ui.View):
         until = discord.utils.utcnow() + datetime.timedelta(minutes=TIMEOUT_MINUTES)
         await member.timeout(until)
         await interaction.response.send_message("対象をTOしました", ephemeral=True)
+        member = await self.get_target(interaction)
+if member is None:
+    return await interaction.response.send_message("ユーザーが見つかりません", ephemeral=True)
 
     @discord.ui.button(
         label="✅ TO解除",
@@ -109,6 +99,9 @@ class PunishView(discord.ui.View):
         member = await self.get_target(interaction)
         await member.timeout(None)
         await interaction.response.send_message("タイムアウトを解除しました", ephemeral=True)
+        member = await self.get_target(interaction)
+if member is None:
+    return await interaction.response.send_message("ユーザーが見つかりません", ephemeral=True)
 # =====================
 # 禁止ワード検知
 # =====================
