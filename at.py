@@ -159,6 +159,11 @@ async def allow_mod(interaction: discord.Interaction, user: discord.Member):
 
     await interaction.response.send_message(f"{user.mention} のBOT操作を許可しました", ephemeral=True)
 
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
 # =====================
 # Bot Standby!
 # =====================
@@ -168,9 +173,9 @@ async def on_ready():
     print(f"Logged in as {bot.user}")
 
 # =====================
-# Json確認用
+# intents確認用
 # =====================
-print("NG_WORDS:", ng_words)
+print("MESSAGE:", message.content)
 # =====================
 # 起動
 # =====================
