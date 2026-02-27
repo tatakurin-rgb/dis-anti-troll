@@ -67,26 +67,42 @@ def is_allowed(user: discord.Member):
 # UIボタン
 # =====================
 class PunishView(discord.ui.View):
-    def __init__(self, member: discord.Member):
+    def __init__(self):
         super().__init__(timeout=None)
-        self.member = member
 
-    @discord.ui.button(label="🔨 BAN", style=discord.ButtonStyle.danger)
+    @discord.ui.button(
+        label="🔨 BAN",
+        style=discord.ButtonStyle.danger,
+        custom_id="ban_button"
+    )
     async def ban(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.member.ban(reason="Botによるオートモデレーション")
+        user_id = int(interaction.message.embeds[0].footer.text)
+        member = interaction.guild.get_member(user_id)
+        await member.ban(reason="Botによるオートモデレーション")
         await interaction.response.send_message("対象をBANしました", ephemeral=True)
 
-    @discord.ui.button(label="⏳ TO", style=discord.ButtonStyle.gray)
+    @discord.ui.button(
+        label="⏳ TO",
+        style=discord.ButtonStyle.gray,
+        custom_id="timeout_button"
+    )
     async def timeout(self, interaction: discord.Interaction, button: discord.ui.Button):
+        user_id = int(interaction.message.embeds[0].footer.text)
+        member = interaction.guild.get_member(user_id)
         until = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIMEOUT_MINUTES)
-        await self.member.timeout(until)
+        await member.timeout(until)
         await interaction.response.send_message("対象をTOしました", ephemeral=True)
 
-    @discord.ui.button(label="♻ TO解除", style=discord.ButtonStyle.green)
+    @discord.ui.button(
+        label="✅ TO解除",
+        style=discord.ButtonStyle.green,
+        custom_id="untimeout_button"
+    )
     async def untimeout(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.member.timeout(None)
+        user_id = int(interaction.message.embeds[0].footer.text)
+        member = interaction.guild.get_member(user_id)
+        await member.timeout(None)
         await interaction.response.send_message("タイムアウトを解除しました", ephemeral=True)
-
 # =====================
 # 禁止ワード検知
 # =====================
