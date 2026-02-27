@@ -123,7 +123,7 @@ async def on_message(message: discord.Message):
         until = discord.utils.utcnow() + datetime.timedelta(minutes=TIMEOUT_MINUTES)
         await member.timeout(until)
 
-        log_channel = bot.get_channel(LOG_CHANNEL_ID)
+        log_channel = await bot.fetch_channel(LOG_CHANNEL_ID)
         if log_channel:
             embed = discord.Embed(
                 title="🚨 NGワードを検知",
