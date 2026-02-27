@@ -122,19 +122,20 @@ async def on_message(message: discord.Message):
             embed = discord.Embed(
                 title="🚨 NGワードを検知",
                 color=discord.Color.red(),
-                timestamp=datetime.datetime.utcnow()
+                timestamp=discord.utils.utcnow()
             )
             embed.add_field(name="ユーザー", value=member.mention)
             embed.add_field(name="内容", value=message.content, inline=False)
+            embed.set_footer(text=str(member.id))
 
-            await log_channel.send(embed=embed, view=PunishView(member))
+            await log_channel.send(embed=embed, view=PunishView())
 
     await bot.process_commands(message)
 
 # =====================
 # コマンド
 # =====================
-@bot.tree.command(name="add_ng")
+@bot.tree.command(name="add_ng, description="禁止ワードを追加します")
 async def add_ng(interaction: discord.Interaction, word: str):
     if not is_allowed(interaction.user):
         return await interaction.response.send_message("権限がありません", ephemeral=True)
@@ -181,8 +182,8 @@ async def allow_mod(interaction: discord.Interaction, user: discord.Member):
 @bot.event
 async def on_ready():
     await bot.tree.sync()
+    bot.add_view(PunishView())
     print(f"Logged in as {bot.user}")
-
 # =====================
 # intents確認用
 # =====================
