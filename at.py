@@ -50,58 +50,81 @@ def is_allowed(user: discord.Member):
 # =====================
 # UIボタン
 # =====================
+import datetime
+import discord
+
 class PunishView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-async def get_target(self, interaction):
-    user_id = int(interaction.message.embeds[0].footer.text)
+    async def get_target(self, interaction: discord.Interaction):
+        try:
+            user_id = int(interaction.message.embeds[0].footer.text)
+        except (IndexError, ValueError, AttributeError):
+            return None
 
-    member = interaction.guild.get_member(user_id)
-    if member is None:
-        member = await interaction.guild.fetch_member(user_id)
+        member = interaction.guild.get_member(user_id)
+        if member is None:
+            try:
+                member = await interaction.guild.fetch_member(user_id)
+            except discord.NotFound:
+                return None
 
-    return member
+        return member
 
+    # ---------------- BAN ----------------
     @discord.ui.button(
         label="🔨 BAN",
         style=discord.ButtonStyle.danger,
         custom_id="ban_button"
     )
     async def ban(self, interaction: discord.Interaction, button: discord.ui.Button):
-        member = await self.get_target(interaction)
-        await member.ban(reason="Botによるオートモデレーション")
-        await interaction.response.send_message("対象をBANしました", ephemeral=True)
-        member = await self.get_target(interaction)
-if member is None:
-    return await interaction.response.send_message("ユーザーが見つかりません", ephemeral=True)
 
+        await interaction.response.defer(ephemeral=True)
+
+        member = await self.get_target(interaction)
+        if member is None:
+            return await interaction.followup.send("ユーザーが見つかりません", ephemeral=True)
+
+        await member.ban(reason="Botによるオートモデレーション")
+        await interaction.followup.send("対象をBANしました", ephemeral=True)
+
+    # ---------------- TIMEOUT ----------------
     @discord.ui.button(
         label="⏳ TO",
         style=discord.ButtonStyle.gray,
         custom_id="timeout_button"
     )
     async def timeout(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+        await interaction.response.defer(ephemeral=True)
+
         member = await self.get_target(interaction)
+        if member is None:
+            return await interaction.followup.send("ユーザーが見つかりません", ephemeral=True)
+
         until = discord.utils.utcnow() + datetime.timedelta(minutes=TIMEOUT_MINUTES)
         await member.timeout(until)
-        await interaction.response.send_message("対象をTOしました", ephemeral=True)
-        member = await self.get_target(interaction)
-if member is None:
-    return await interaction.response.send_message("ユーザーが見つかりません", ephemeral=True)
 
+        await interaction.followup.send("対象をTOしました", ephemeral=True)
+
+    # ---------------- UNTIMEOUT ----------------
     @discord.ui.button(
         label="✅ TO解除",
         style=discord.ButtonStyle.green,
         custom_id="untimeout_button"
     )
     async def untimeout(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+        await interaction.response.defer(ephemeral=True)
+
         member = await self.get_target(interaction)
+        if member is None:
+            return await interaction.followup.send("ユーザーが見つかりません", ephemeral=True)
+
         await member.timeout(None)
-        await interaction.response.send_message("タイムアウトを解除しました", ephemeral=True)
-        member = await self.get_target(interaction)
-if member is None:
-    return await interaction.response.send_message("ユーザーが見つかりません", ephemeral=True)
+
+        await interaction.followup.send("タイムアウトを解除しました", ephemeral=True)
 # =====================
 # 禁止ワード検知
 # =====================
@@ -180,12 +203,9 @@ async def allow_mod(interaction: discord.Interaction, user: discord.Member):
 # =====================
 @bot.event
 async def on_ready():
-    try:
-        await bot.tree.sync()
-        bot.add_view(PunishView())
+    if not hasattr(bot, "startup_time"):
+        bot.startup_time = True
         print(f"Logged in as {bot.user}")
-    except Exception as e:
-        print("on_ready ERROR:", e)
 # =====================
 # intents確認用
 # =====================
