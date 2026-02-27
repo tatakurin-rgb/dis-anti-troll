@@ -64,36 +64,25 @@ def is_allowed(user: discord.Member):
 # =====================
 # UIボタン
 # =====================
-import datetime
-import discord
-
 class PunishView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    async def get_target(self, interaction: discord.Interaction):
-        try:
-            user_id = int(interaction.message.embeds[0].footer.text)
-        except (IndexError, ValueError, AttributeError):
-            return None
+    async def get_target(self, interaction):
+        user_id = int(interaction.message.embeds[0].footer.text)
 
         member = interaction.guild.get_member(user_id)
         if member is None:
-            try:
-                member = await interaction.guild.fetch_member(user_id)
-            except discord.NotFound:
-                return None
+            member = await interaction.guild.fetch_member(user_id)
 
         return member
 
-    # ---------------- BAN ----------------
     @discord.ui.button(
         label="🔨 BAN",
         style=discord.ButtonStyle.danger,
         custom_id="ban_button"
     )
     async def ban(self, interaction: discord.Interaction, button: discord.ui.Button):
-
         await interaction.response.defer(ephemeral=True)
 
         member = await self.get_target(interaction)
@@ -103,14 +92,12 @@ class PunishView(discord.ui.View):
         await member.ban(reason="Botによるオートモデレーション")
         await interaction.followup.send("対象をBANしました", ephemeral=True)
 
-    # ---------------- TIMEOUT ----------------
     @discord.ui.button(
         label="⏳ TO",
         style=discord.ButtonStyle.gray,
         custom_id="timeout_button"
     )
     async def timeout(self, interaction: discord.Interaction, button: discord.ui.Button):
-
         await interaction.response.defer(ephemeral=True)
 
         member = await self.get_target(interaction)
@@ -119,17 +106,14 @@ class PunishView(discord.ui.View):
 
         until = discord.utils.utcnow() + datetime.timedelta(minutes=TIMEOUT_MINUTES)
         await member.timeout(until)
-
         await interaction.followup.send("対象をTOしました", ephemeral=True)
 
-    # ---------------- UNTIMEOUT ----------------
     @discord.ui.button(
         label="✅ TO解除",
         style=discord.ButtonStyle.green,
         custom_id="untimeout_button"
     )
     async def untimeout(self, interaction: discord.Interaction, button: discord.ui.Button):
-
         await interaction.response.defer(ephemeral=True)
 
         member = await self.get_target(interaction)
@@ -137,7 +121,6 @@ class PunishView(discord.ui.View):
             return await interaction.followup.send("ユーザーが見つかりません", ephemeral=True)
 
         await member.timeout(None)
-
         await interaction.followup.send("タイムアウトを解除しました", ephemeral=True)
 # =====================
 # 禁止ワード検知
