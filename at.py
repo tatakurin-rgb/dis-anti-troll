@@ -133,7 +133,7 @@ async def on_message(message: discord.Message):
             embed.add_field(name="ユーザー", value=member.mention)
             embed.add_field(name="内容", value=message.content, inline=False)
             embed.set_footer(text=str(member.id))
-await log_channel.send(embed=embed, view=PunishView())
+            await log_channel.send(embed=embed, view=PunishView())
 
             await log_channel.send(embed=embed, view=PunishView())
 
